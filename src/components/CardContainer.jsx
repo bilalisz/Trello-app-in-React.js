@@ -79,6 +79,12 @@ const CardContainer = (props) => {
     onAddItemModalClose,
     getItemObj,
     assignName,
+    onOpenStatusModal,
+    getCurrentCard,
+    onSortByName,
+    onRandomSort,
+    onDeleteItem,
+    onUpdateModalOpen,
   } = props;
 
   return (
@@ -91,7 +97,14 @@ const CardContainer = (props) => {
     >
       <Paper className={classes.title}>
         <Typography variant="h5">{card.title}</Typography>
-        <CardMenu card={card.id} onDeleteCard={onDeleteCard} />
+        <CardMenu
+          card={card}
+          onDeleteCard={onDeleteCard}
+          onOpenStatusModal={onOpenStatusModal}
+          getCurrentCard={getCurrentCard}
+          onSortByName={onSortByName}
+          onRandomSort={onRandomSort}
+        />
       </Paper>
       <div className={classes.btnWrapper}>
         <Button
@@ -123,9 +136,12 @@ const CardContainer = (props) => {
             <span className={classes.itemIconsWrapper}>
               <DeleteIcon
                 color="secondary"
-                onClick={() => console.log(task.id)}
+                onClick={() => onDeleteItem(task.id, card.id)}
               />
-              <EditIcon color="primary" />
+              <EditIcon
+                color="primary"
+                onClick={() => onUpdateModalOpen(task.id, card.id)}
+              />
             </span>
           </Card>
         ))}
