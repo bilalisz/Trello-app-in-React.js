@@ -9,6 +9,7 @@ import NavBar from "./components/NavBar";
 import axios from "axios";
 import StatusComp from "./components/control/StatusComp";
 import UpdateModal from "./components/control/UpdateModal";
+import { getAssing } from "./services/actions/actions";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,8 +31,10 @@ function App() {
   const [statusModal, setStatusModal] = React.useState(false);
   const [openUpdateModal, setOpenUpdateModal] = React.useState(false);
   const [selectStatus, setSelectStatus] = useState("");
+  const [updateItem, setUpdateItem] = useState({});
+  const [updateCard, setUpdateCard] = useState({});
 
-  const [assignName, setAssignName] = useState();
+  const [assignName, setAssignName] = useState([]);
   const [cardArray, setCardArray] = useState([
     {
       id: `cardArray${Math.floor(Math.random() * 10000)}`,
@@ -42,7 +45,7 @@ function App() {
           id: `itemArray${Math.floor(Math.random() * 20000)}`,
           title: "Title 1",
           description: "description",
-          assign: "item.assign",
+          assign: "Aassign",
           timeStam: Date.now(),
         },
       ],
@@ -53,10 +56,11 @@ function App() {
   useEffect(() => {
     axios
       .get("https://mocki.io/v1/0b876615-7741-46b7-bf9b-80b00a07272b")
-      .then((data) => {
-        console.log(data.data);
-        setAssignName(data.data);
-      });
+      .then((data) => setAssignName(data.data));
+    // const assignData = getAssing(
+    //   "https://mocki.io/v1/0b876615-7741-46b7-bf9b-80b00a07272b"
+    // );
+    // console.log("assign data", assignData);
   }, [setAssignName]);
 
   const getItemObj = (item) => {
@@ -105,9 +109,10 @@ function App() {
 
   const handleDeleteCard = (id) => {
     console.log(id);
+    const card = cardArray.find((card) => card.id === id);
     sweetAlert({
       title: "Are you sure?",
-      text: "Delete card will remove from DOM ",
+      text: "Do you want to delete" + " " + card.title + " " + "tasks",
       icon: "warning",
       buttons: true,
       dangerMode: true,
@@ -116,8 +121,6 @@ function App() {
         const filterdCard = cardArray.filter((card) => card.id !== id);
         console.log(filterdCard);
         setCardArray(filterdCard);
-      } else {
-        sweetAlert("card is not deleted!");
       }
     });
   };
@@ -125,7 +128,6 @@ function App() {
   const handleMoveAll = (e) => {
     e.preventDefault();
     setStatusModal(false);
-    setCurrentCardId("");
 
     const filterCurrentCard = cardArray.find(
       (card) => card.id === currentCardId
@@ -133,16 +135,16 @@ function App() {
     console.log("filter tasks", filterCurrentCard.tasks);
 
     console.log(cardArray);
-    debugger;
-    const toArray = cardArray.map((card) => {
+    let toArray = cardArray.map((card) => {
       if (card.id === selectStatus) {
         return { ...card, tasks: [...card.tasks, ...filterCurrentCard.tasks] };
       } else {
         return card;
       }
     });
+
     setCardArray(
-      cardArray.map((card) => {
+      toArray.map((card) => {
         if (card.id === currentCardId) {
           return { ...card, tasks: (card.tasks.length = 0) };
         } else {
@@ -153,6 +155,7 @@ function App() {
 
     setCardArray(toArray);
     setSelectStatus("");
+    setCurrentCardId("");
   };
 
   const handleSortByName = (id) => {
@@ -177,11 +180,21 @@ function App() {
     console.log("card is", tasksArray);
     const sortTasks = tasksArray.tasks.sort(() => Math.random() - 0.5);
     console.log("sort tasks", sortTasks);
-    setCardArray(
-      cardArray.map((card) =>
-        card.id === id ? { ...card, tasks: [...sortTasks] } : card
-      )
-    );
+    if (!sortTasks.length) {
+      sweetAlert({
+        title: "Tasks Box Is Empty",
+        text: "No task is aviable try another box",
+        icon: "error",
+        buttons: true,
+        dangerMode: true,
+      });
+    } else {
+      setCardArray(
+        cardArray.map((card) =>
+          card.id === id ? { ...card, tasks: [...sortTasks] } : card
+        )
+      );
+    }
   };
 
   // *******************************( modal handlers)********************************* */
@@ -207,13 +220,75 @@ function App() {
   const handleGetCurrentCard = (currentCard) => {
     setCurrentCardId(currentCard);
   };
-
+  // current working
   const handleOpenUpdateModal = (itemId, cardId) => {
     setOpenUpdateModal(true);
+    const filteredCard = cardArray.find((card) => {
+      return card.id === cardId;
+    });
+    const filteredItem = filteredCard.tasks.find((task) => task.id === itemId);
+    console.log(filteredItem);
+    setUpdateCard(filteredCard);
+    setUpdateItem(filteredItem);
   };
 
   const handleCloseUpdateModal = () => {
     setOpenUpdateModal(false);
+  };
+
+  const getUpdateItem = (updateTask, updateStatus, taskId) => {
+    debugger;
+    const currentCardId = updateCard.id;
+    const { title, description, assign } = updateTask;
+    const currentCard = cardArray.find((card) => card.id === currentCardId);
+    const item = currentCard.tasks.find((task) => task.id === taskId);
+
+    const updateItem = {
+      ...item,
+      title: title,
+      description: description,
+      assign: assign,
+    };
+
+    let updateContent = cardArray.map((card) => {
+      if (card.id === currentCardId) {
+        return {
+          ...card,
+          tasks: card.tasks.map((task) =>
+            task.id === taskId
+              ? {
+                  ...task,
+                  title: updateTask.title,
+                  description: updateTask.description,
+                  assign: updateTask.assign,
+                }
+              : task
+          ),
+        };
+      } else {
+        return card;
+      }
+    });
+
+    let moveAndUpdateTask = cardArray.map((card) => {
+      if (card.id === currentCardId) {
+        return {
+          ...card,
+          tasks: card.tasks.filter((task) => task.id !== taskId),
+        };
+      } else if (card.id === updateStatus) {
+        return { ...card, tasks: [...card.tasks, updateItem] };
+      } else {
+        return card;
+      }
+    });
+    if (currentCardId === updateStatus) {
+      setCardArray(updateContent);
+    } else {
+      setCardArray(moveAndUpdateTask);
+    }
+
+    setCurrentCardId("");
   };
 
   // *******************************( modal handlers)********************************* */
@@ -276,6 +351,12 @@ function App() {
               onRandomSort={handleRandomSort}
               onDeleteItem={handleDeleteItem}
               onUpdateModalOpen={handleOpenUpdateModal}
+              // update props
+              onCloseUpdateModal={handleCloseUpdateModal}
+              openUpdateModal={openUpdateModal}
+              task={updateItem}
+              getUpdateItem={getUpdateItem}
+              cards={cardArray}
             />
           ))}
         </Container>
@@ -288,27 +369,8 @@ function App() {
         selectStatus={selectStatus}
         onMoveall={handleMoveAll}
       />
-      <UpdateModal
-        onCloseUpdateModal={handleCloseUpdateModal}
-        openUpdateModal={openUpdateModal}
-      />
     </React.Fragment>
   );
 }
 
 export default App;
-
-// debugger;
-// setCardArray(
-//   [...cardArray].map((t_c) =>
-//     t_c.id === selectStatus
-//       ? { ...t_c, tasks: [...t_c.tasks, filterCurrentCard.tasks] }
-//       : t_c
-//   )
-// );
-
-// setCardArray(
-//   [...cardArray].map((c_c) =>
-//     c_c.id === currentCardId ? { ...c_c, tasks: [] } : c_c
-//   )
-// );

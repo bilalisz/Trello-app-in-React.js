@@ -13,6 +13,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
 import CardMenu from "./control/CardMenu";
 import AddItemModal from "./control/AddItemModal";
+import UpdateModal from "./control/UpdateModal";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -85,6 +86,11 @@ const CardContainer = (props) => {
     onRandomSort,
     onDeleteItem,
     onUpdateModalOpen,
+    onCloseUpdateModal,
+    openUpdateModal,
+    task,
+    getUpdateItem,
+    cards,
   } = props;
 
   return (
@@ -153,6 +159,16 @@ const CardContainer = (props) => {
         assignName={assignName}
         cardId={card.id}
       />
+      {openUpdateModal && (
+        <UpdateModal
+          onCloseUpdateModal={onCloseUpdateModal}
+          openUpdateModal={openUpdateModal}
+          task={task}
+          assignName={assignName}
+          getUpdateItem={getUpdateItem}
+          cards={cards}
+        />
+      )}
     </Box>
   );
 };

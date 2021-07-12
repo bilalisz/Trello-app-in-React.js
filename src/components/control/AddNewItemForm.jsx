@@ -41,6 +41,14 @@ const useStyles = makeStyles((theme) =>
     extendedIcon: {
       marginRight: theme.spacing(1),
     },
+    slectBtnWrapper: {
+      display: "flex",
+      flexDirection: "column",
+    },
+    selectField: {
+      width: "327%",
+      margin: "10px",
+    },
   })
 );
 
@@ -99,32 +107,33 @@ const AddNewItemForm = ({ getItem, assignName, onClose }) => {
               onChange={formik.handleChange}
             />
 
-            <TextField
-              name="assign"
-              select
-              className={classes.textField}
-              label="Select"
-              variant="outlined"
-              value={formik.values.assign}
-              onChange={formik.handleChange}
-              error={formik.touched.assign && Boolean(formik.errors.assign)}
-              helperText={formik.touched.assign && formik.errors.assign}
-            >
-              {assignName.map((assign) => (
-                <MenuItem key={assign.id} value={assign.name}>
-                  {assign.name}
-                </MenuItem>
-              ))}
-            </TextField>
-
-            <Button
-              className={classes.button}
-              type="submit"
-              variant="outlined"
-              color="secondary"
-            >
-              Continue
-            </Button>
+            <div className={classes.slectBtnWrapper}>
+              <TextField
+                className={classes.selectField}
+                name="assign"
+                select
+                label="Select"
+                variant="outlined"
+                value={formik.values.assign}
+                onChange={formik.handleChange}
+                error={formik.touched.assign && Boolean(formik.errors.assign)}
+                helperText={formik.touched.assign && formik.errors.assign}
+              >
+                {assignName.map((assign) => (
+                  <MenuItem key={assign.id} value={assign.name}>
+                    {assign.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <Button
+                className={classes.button}
+                type="submit"
+                variant="contained"
+                color="primary"
+              >
+                Add new item
+              </Button>
+            </div>
           </form>
         </Grid>
       </Box>
