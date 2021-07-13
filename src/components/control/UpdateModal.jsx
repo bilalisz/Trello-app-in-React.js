@@ -112,6 +112,7 @@ const UpdateModal = (props) => {
               label="Status"
               variant="outlined"
               onChange={(e) => setSelectedStatus(e.target.value)}
+              required
             >
               {cards.map((card) => (
                 <MenuItem key={card.id} value={card.id}>
