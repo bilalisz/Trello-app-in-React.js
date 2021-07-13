@@ -53,7 +53,12 @@ const StatusComp = (props) => {
               </MenuItem>
             ))}
           </TextField>
-          <Button variant="outlined" color="secondary" type="submit">
+          <Button
+            variant="outlined"
+            color="secondary"
+            type="submit"
+            disabled={!selectStatus}
+          >
             Move All Item
           </Button>
         </form>
