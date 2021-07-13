@@ -32,17 +32,20 @@ const CardMenu = (props) => {
 
   const handleDelete = () => {
     onDeleteCard(card.id);
-    handleClose;
+    handleClose();
+  };
+  const handleModalOpen = () => {
+    onOpenStatusModal(card.id);
+    handleClose();
   };
 
   const handleSortByName = () => {
-    handleClose;
-    console.log("sort by name", card.id);
+    handleClose();
     onSortByName(card.id);
   };
 
   const handleSortRandom = () => {
-    handleClose;
+    handleClose();
     console.log("sort Random", card.id);
     onRandomSort(card.id);
   };
@@ -67,7 +70,7 @@ const CardMenu = (props) => {
         <MenuItem onClick={handleDelete} style={{ color: "red" }}>
           Delete
         </MenuItem>
-        <MenuItem onClick={onOpenStatusModal}>Move All</MenuItem>
+        <MenuItem onClick={handleModalOpen}>Move All</MenuItem>
         <MenuItem onClick={handleSortByName}>Sort by Name</MenuItem>
         <MenuItem onClick={handleSortRandom}>Sort Random</MenuItem>
       </Menu>

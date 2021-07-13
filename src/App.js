@@ -128,7 +128,7 @@ function App() {
   const handleMoveAll = (e) => {
     e.preventDefault();
     setStatusModal(false);
-
+    // debugger;
     const filterCurrentCard = cardArray.find(
       (card) => card.id === currentCardId
     );
@@ -142,58 +142,84 @@ function App() {
         return card;
       }
     });
+    let fromCard = toArray.map((card) => {
+      if (card.id === currentCardId) {
+        return { ...card, tasks: (card.tasks.length = 0) };
+      } else {
+        return card;
+      }
+    });
+    cardArray.map((card) => {
+      if (card.id === currentCardId) {
+        if (currentCardId === selectStatus) {
+          sweetAlert({
+            icon: "error",
+            title: "Error",
+            text: "Task Box is Empty",
+          });
 
-    setCardArray(
-      toArray.map((card) => {
-        if (card.id === currentCardId) {
-          return { ...card, tasks: (card.tasks.length = 0) };
-        } else {
-          return card;
+          return setCardArray(cardArray.map((card) => card));
         }
-      })
-    );
+      } else {
+        setCardArray(fromCard);
+        setCardArray(toArray);
+        setSelectStatus("");
+        setCurrentCardId("");
+      }
+    });
 
-    setCardArray(toArray);
-    setSelectStatus("");
-    setCurrentCardId("");
+    // setCardArray(fromCard);
+    // setCardArray(toArray);
+    // setSelectStatus("");
+    // setCurrentCardId("");
   };
 
   const handleSortByName = (id) => {
-    // debugger;
+    debugger;
     console.log(id);
-    const tasksArray = cardArray.find((card) => card.id === id);
-    console.log("card is", tasksArray);
-    const sortTasks = tasksArray.tasks.sort(
-      (a, b) => a.title.toLowerCase() - b.title.toLowerCase()
-    );
-    console.log("sort tasks", sortTasks);
-    setCardArray(
-      cardArray.map((card) =>
-        card.id === id ? { ...card, tasks: [...sortTasks] } : card
-      )
-    );
+    const cardContainer = cardArray.find((card) => card.id === id);
+    console.log("card is", cardContainer);
+    if (!cardContainer.tasks.length) {
+      sweetAlert({
+        icon: "error",
+        title: "Error",
+        text: "Task Box is Empty",
+      });
+    } else {
+      const sortTasks = cardContainer.tasks.sort((a, b) =>
+        a.title.toLowerCase().localeCompare(b.title.toLowerCase())
+      );
+      console.log("sort tasks", sortTasks);
+      if (sortTasks.length) {
+        setCardArray(
+          cardArray.map((card) =>
+            card.id === id ? { ...card, tasks: [...sortTasks] } : card
+          )
+        );
+      }
+    }
   };
   const handleRandomSort = (id) => {
     // debugger;
     console.log(id);
-    const tasksArray = cardArray.find((card) => card.id === id);
-    console.log("card is", tasksArray);
-    const sortTasks = tasksArray.tasks.sort(() => Math.random() - 0.5);
-    console.log("sort tasks", sortTasks);
-    if (!sortTasks.length) {
+    const cardContainer = cardArray.find((card) => card.id === id);
+    console.log("card is", cardContainer);
+    if (!cardContainer.tasks.length) {
       sweetAlert({
-        title: "Tasks Box Is Empty",
-        text: "No task is aviable try another box",
         icon: "error",
-        buttons: true,
-        dangerMode: true,
+        title: "Error",
+        text: "Task Box is Empty",
       });
     } else {
-      setCardArray(
-        cardArray.map((card) =>
-          card.id === id ? { ...card, tasks: [...sortTasks] } : card
-        )
-      );
+      const sortTasks = cardContainer.tasks.sort(() => Math.random() - 0.5);
+      console.log("sort tasks", sortTasks);
+      if (sortTasks.length) {
+        setCardArray(
+          cardArray.map((card) =>
+            card.id === id ? { ...card, tasks: [...sortTasks] } : card
+          )
+        );
+      }
     }
   };
 
@@ -203,9 +229,17 @@ function App() {
     setAddItemModal(true);
   };
 
-  const handleOpenStatusModal = () => {
-    console.log("status modal open");
-    setStatusModal(true);
+  const handleOpenStatusModal = (cardId) => {
+    console.log("status modal open", cardId);
+    const card = cardArray.find((card) => card.id === cardId);
+    if (card.tasks.length) setStatusModal(true);
+    else {
+      sweetAlert({
+        icon: "error",
+        title: "Error",
+        text: "Task Box is Empty",
+      });
+    }
   };
 
   const handleCloseStatusModal = () => {
@@ -220,7 +254,7 @@ function App() {
   const handleGetCurrentCard = (currentCard) => {
     setCurrentCardId(currentCard);
   };
-  // current working
+
   const handleOpenUpdateModal = (itemId, cardId) => {
     setOpenUpdateModal(true);
     const filteredCard = cardArray.find((card) => {
@@ -237,7 +271,7 @@ function App() {
   };
 
   const getUpdateItem = (updateTask, updateStatus, taskId) => {
-    debugger;
+    // debugger;
     const currentCardId = updateCard.id;
     const { title, description, assign } = updateTask;
     const currentCard = cardArray.find((card) => card.id === currentCardId);
