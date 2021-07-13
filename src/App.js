@@ -175,7 +175,6 @@ function App() {
   };
 
   const handleSortByName = (id) => {
-    debugger;
     console.log(id);
     const cardContainer = cardArray.find((card) => card.id === id);
     console.log("card is", cardContainer);
